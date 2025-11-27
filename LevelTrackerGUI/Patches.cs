@@ -15,7 +15,10 @@ namespace LevelTracker
 
 		[HarmonyPostfix]
 		[HarmonyPatch(typeof(Player), "OnEnterDropPod")]
-		public static void OnEnterDropPod()
+		[HarmonyPatch(typeof(Player), "Die")]
+		[HarmonyPatch(typeof(Player), "OnStageEnd")]
+		[HarmonyPatch(typeof(Player), "OnSurrender")]
+		public static void OnUnloadTrigger()
 		{
 			BlockTracker.Unload();
 		}
@@ -24,10 +27,7 @@ namespace LevelTracker
 		[HarmonyPatch(typeof(Player), "OnRockAndStoneInput")]
 		public static void OnRockAndStone()
 		{
-			// Toggle GUI instead of listing to console
-			// BlockTracker.ListBlocks();
 			LevelTrackerGUI.Plugin.ShowGUI = !LevelTrackerGUI.Plugin.ShowGUI;
-			LevelTrackerGUI.Plugin.Log.LogInfo($"GUI toggled: {LevelTrackerGUI.Plugin.ShowGUI}");
 		}
 	}
 }

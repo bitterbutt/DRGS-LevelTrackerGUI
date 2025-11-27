@@ -7,6 +7,7 @@ using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using LevelTracker;
 using BepInEx.Configuration;
+using System.Collections.Generic;
 
 namespace LevelTrackerGUI;
 
@@ -62,6 +63,25 @@ public class Plugin : BasePlugin
 public class GUIComponent : MonoBehaviour
 {
     public GUIComponent(System.IntPtr ptr) : base(ptr) { }
+
+    // Fallback color map for resource names
+    private static readonly Dictionary<string, Color> ResourceColorMap = new Dictionary<string, Color>()
+    {
+        // Common ores
+        { "NITRA", Color.red },                      // red
+        { "RED_SUGAR", Color.red },                  // red
+        { "GOLD", new Color(1f, 0.84f, 0f) },        // gold
+        { "MORKITE", new Color(0.5f, 0.8f, 1f) },    // light blue
+
+        // Rare minerals
+        { "ENOR_PEARL", new Color(0.7f, 0.7f, 0.7f) },  // gray
+        { "JADIZ", new Color(0f, 1f, 0.5f) },           // green
+        { "CROPPA", new Color(0f, 0.8f, 0.8f) },        // teal
+        { "MAGNITE", new Color(1f, 0.5f, 0f) },         // orange
+        { "BISMOR", new Color(1f, 0.5f, 0f) },          // orange
+        { "UMANITE", new Color(0.75f, 1f, 0f) },        // lime
+    };
+
 
     private void Start()
     {
@@ -136,12 +156,10 @@ public class GUIComponent : MonoBehaviour
             desiredWidth = Mathf.Max(desiredWidth, headerMinWidth);
             Plugin.windowRect.width = Mathf.Clamp(desiredWidth, headerMinWidth, 260f);
 
-            // Dynamic height
+            // Dynamic height - always recalculate to adjust when rows are removed
             int rowsToShow = ordered.Count;
             float desiredHeight = topPadding + headerHeight + rowsToShow * rowHeight + bottomPadding;
-            // Only expand if larger than current (prevents flashing if Harmony patches run early)
-            if (desiredHeight > Plugin.windowRect.height)
-                Plugin.windowRect.height = desiredHeight;
+            Plugin.windowRect.height = desiredHeight;
 
             float innerWidth = Plugin.windowRect.width - 2f * contentX;
             const float colGap = 6f;
@@ -150,14 +168,23 @@ public class GUIComponent : MonoBehaviour
             for (int i = 0; i < ordered.Count; i++)
             {
                 var bd = ordered[i];
-                string qtyText = $"{bd.TotalBlocks:00} | {bd.TotalCurrency:00}";
+                string qtyText = $"{bd.TotalBlocks:000} | {bd.TotalCurrency:000}";
                 float qtyWidthPx = qtyText.Length * glyphWidth;
                 float y = topPadding + headerHeight + i * rowHeight;
                 float qtyX = contentX + innerWidth - qtyWidthPx - 4f;
                 float nameWidthPx = Mathf.Max(20f, qtyX - contentX - colGap);
 
                 var oldColor = GUI.contentColor;
-                GUI.contentColor = (int)bd.Type <= 3 ? Color.white : new Color(1f, 0.92f, 0.016f);
+                // Try name-based color map first, then fall back to Type-based coloring
+                Color rowColor;
+                if (ResourceColorMap.TryGetValue(bd.Name, out rowColor))
+                {
+                    GUI.contentColor = rowColor;
+                }
+                else
+                {
+                    GUI.contentColor = (int)bd.Type <= 3 ? Color.white : new Color(1f, 0.92f, 0.016f);
+                }
                 GUI.Label(new Rect(contentX, y, nameWidthPx, rowHeight), bd.Name);
                 GUI.Label(new Rect(qtyX, y, qtyWidthPx + 2f, rowHeight), qtyText);
                 GUI.contentColor = oldColor;

@@ -53,7 +53,7 @@ namespace LevelTracker
 				bool flag = blockData.TotalBlocks == 0;
 				if (!flag)
 				{
-					string text = string.Format("[Level Tracker] {0} | x{1:00} | Total: {2:00}", blockData.Name.Extend(num), blockData.TotalBlocks, blockData.TotalCurrency);
+					string text = string.Format("[Level Tracker] {0} | x{1:00} | Total: {2:00} | Type: {3} ({4})", blockData.Name.Extend(num), blockData.TotalBlocks, blockData.TotalCurrency, blockData.Type, (int)blockData.Type);
 					bool flag2 = (int)blockData.Type <= 3;
 					if (flag2)
 					{
