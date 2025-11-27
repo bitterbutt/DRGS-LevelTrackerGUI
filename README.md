@@ -12,6 +12,10 @@ Original resource tracking plugin by [potatodock](https://www.nexusmods.com/deep
 - Persists window position when dragged; configurable open-at-start behavior
 - Reads live data from the plugin's `BlockTracker`
 
+## Screenshot
+
+<img width="50%" height="50%" alt="Overlay Example" src="https://github.com/user-attachments/assets/d1a713de-ab96-4532-b8c9-2ec94e7f6205" />
+
 ## Building
 
 ```powershell
